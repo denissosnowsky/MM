@@ -4,10 +4,10 @@ pragma solidity 0.8.24;
 
 import {ERC721} from "../standarts/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Royalty} from "../extensions/Royalty.sol";
+import {Royalty} from "../extentions/Royalty.sol";
 import {IToken} from "./IToken.sol";
 
-contract ERC721Token is Ownable, ERC721, Royalty, IToken {
+contract ERC721Token is Ownable, ERC721, IToken, Royalty {
     error ERC721Token__TokenDoesNotExist();
     error ERC721Token__RoyaltyIsOff();
     error ERC721Token__CommonRoyaltyIsOn();
@@ -153,6 +153,27 @@ contract ERC721Token is Ownable, ERC721, Royalty, IToken {
         }
 
         return _getRoyalties();
+    }
+
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 value
+    ) external view returns (address payable[] memory, uint256[] memory) {
+        if (!_exists(tokenId)) {
+            revert ERC721Token__TokenDoesNotExist();
+        }
+
+        if (_isCommonRoyalty) {
+            return royaltyInfo(value);
+        }
+
+        return _getRoyaltyInfo(tokenId, value);
+    }
+
+    function royaltyInfo(
+        uint256 value
+    ) public view returns (address payable[] memory, uint256[] memory) {
+        return _getRoyaltyInfo(value);
     }
 
     function _baseURI() internal view override returns (string memory) {

@@ -148,4 +148,39 @@ contract Royalty {
             }
         }
     }
+
+    function _getRoyaltyInfo(
+        uint256 tokenId,
+        uint256 value
+    ) internal view returns (address payable[] memory, uint256[] memory) {
+        (
+            address payable[] memory receivers,
+            uint256[] memory bps
+        ) = _getRoyalties(tokenId);
+
+        uint256[] memory bpsValues = new uint256[](bps.length);
+
+        for (uint i = 0; i < bps.length; i++) {
+            bpsValues[i] = (bps[i] * value) / 10000;
+        }
+
+        return (receivers, bpsValues);
+    }
+
+    function _getRoyaltyInfo(
+        uint256 value
+    ) internal view returns (address payable[] memory, uint256[] memory) {
+        (
+            address payable[] memory receivers,
+            uint256[] memory bps
+        ) = _getRoyalties();
+
+        uint256[] memory bpsValues = new uint256[](bps.length);
+
+        for (uint i = 0; i < bps.length; i++) {
+            bpsValues[i] = (bps[i] * value) / 10000;
+        }
+
+        return (receivers, bpsValues);
+    }
 }

@@ -6,7 +6,7 @@ import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {Royalty} from "../extensions/Royalty.sol";
+import {Royalty} from "../extentions/Royalty.sol";
 import {IToken} from "./IToken.sol";
 
 contract ERC1155Token is Ownable, ERC1155Supply, Royalty, IToken {
@@ -188,5 +188,26 @@ contract ERC1155Token is Ownable, ERC1155Supply, Royalty, IToken {
         }
 
         return _getRoyalties();
+    }
+
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 value
+    ) external view returns (address payable[] memory, uint256[] memory) {
+        if (!exists(tokenId)) {
+            revert ERC1155Token__TokenDoesNotExist();
+        }
+
+        if (_isCommonRoyalty) {
+            return royaltyInfo(value);
+        }
+
+        return _getRoyaltyInfo(tokenId, value);
+    }
+
+    function royaltyInfo(
+        uint256 value
+    ) public view returns (address payable[] memory, uint256[] memory) {
+        return _getRoyaltyInfo(value);
     }
 }

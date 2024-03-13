@@ -9,7 +9,7 @@ import {ERC721Token} from "../src/tokens/ERC721Token.sol";
 
 contract DeployFactory is Script {
     function run() external returns (TokenFactory factory) {
-        vm.startBroadcast();
+        vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
         factory = new TokenFactory();
         vm.stopBroadcast();
     }

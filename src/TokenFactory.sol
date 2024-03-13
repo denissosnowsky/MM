@@ -2,26 +2,35 @@
 
 pragma solidity 0.8.24;
 
-import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ERC721Token} from "../src/tokens/ERC721Token.sol";
 import {ERC1155Token} from "../src/tokens/ERC1155Token.sol";
 import {IToken} from "./tokens/IToken.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TokenFactory {
-    using Clones for address;
+contract TokenFactory is Ownable {
+    UpgradeableBeacon public _beaconERC721;
+    UpgradeableBeacon public _beaconERC1155;
 
-    ERC721Token private _templateERC721;
-    ERC1155Token private _templateERC1155;
     mapping(address => address[]) ownerToTokens;
 
     event TokenCreated(address token, bool isERC721);
 
-    constructor() {
-        _templateERC721 = new ERC721Token();
-        _templateERC1155 = new ERC1155Token();
-        _templateERC721.setInitialized();
-        _templateERC1155.setInitialized();
+    constructor() Ownable(msg.sender) {
+        ERC721Token tokenERC721 = new ERC721Token();
+        ERC1155Token tokenERC1155 = new ERC1155Token();
+        tokenERC721.setInitialized();
+        tokenERC1155.setInitialized();
+        _beaconERC721 = new UpgradeableBeacon(
+            address(tokenERC721),
+            address(this)
+        );
+        _beaconERC1155 = new UpgradeableBeacon(
+            address(tokenERC1155),
+            address(this)
+        );
     }
 
     function createToken(
@@ -31,23 +40,28 @@ contract TokenFactory {
         string memory baseTokenURI_,
         bool hasRoyalty_
     ) external returns (address tokenAddress) {
-        if (isERC721) {
-            tokenAddress = address(_templateERC721).clone();
-            emit TokenCreated(tokenAddress, true);
-        } else {
-            tokenAddress = address(_templateERC1155).clone();
-            emit TokenCreated(tokenAddress, false);
-        }
-
-        ownerToTokens[msg.sender].push(tokenAddress);
-
-        IToken(tokenAddress).initialize(
+        bytes memory beaconData = abi.encodeWithSelector(
+            IToken.initialize.selector,
             name_,
             symbol_,
             baseTokenURI_,
             msg.sender,
             hasRoyalty_
         );
+
+        if (isERC721) {
+            tokenAddress = address(
+                new BeaconProxy(address(_beaconERC721), beaconData)
+            );
+            emit TokenCreated(tokenAddress, true);
+        } else {
+            tokenAddress = address(
+                new BeaconProxy(address(_beaconERC1155), beaconData)
+            );
+            emit TokenCreated(tokenAddress, false);
+        }
+
+        ownerToTokens[msg.sender].push(tokenAddress);
     }
 
     function getTokens() external view returns (address[] memory) {
@@ -56,5 +70,15 @@ contract TokenFactory {
 
     function getTokens(address owner) external view returns (address[] memory) {
         return ownerToTokens[owner];
+    }
+
+    function upgradeBeaconERC721(address newImplementation) external onlyOwner {
+        _beaconERC721.upgradeTo(newImplementation);
+    }
+
+    function upgradeBeaconERC1155(
+        address newImplementation
+    ) external onlyOwner {
+        _beaconERC1155.upgradeTo(newImplementation);
     }
 }

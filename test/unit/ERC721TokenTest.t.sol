@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 
 import {Test, console} from "forge-std/Test.sol";
 import {ERC721Token} from "../../src/tokens/ERC721Token.sol";
-import {Royalty} from "../../src/extensions/Royalty.sol";
+import {Royalty} from "../../src/extentions/Royalty.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -208,6 +208,28 @@ contract ERC721TokenTest is Test {
         assertEq(bpsRes[0], 100);
         assertEq(bpsRes[1], 200);
 
+        (
+            address payable[] memory receiversResValues,
+            uint256[] memory bpsResValues
+        ) = token.royaltyInfo(10000);
+        assertEq(receiversResValues.length, 2);
+        assertEq(bpsResValues.length, 2);
+        assertEq(receiversResValues[0], USER);
+        assertEq(receiversResValues[1], USER2);
+        assertEq(bpsResValues[0], 100);
+        assertEq(bpsResValues[1], 200);
+
+        (
+            address payable[] memory receiversResValues2,
+            uint256[] memory bpsResValues2
+        ) = token.royaltyInfo(0, 10000);
+        assertEq(receiversResValues2.length, 2);
+        assertEq(bpsResValues2.length, 2);
+        assertEq(receiversResValues2[0], USER);
+        assertEq(receiversResValues2[1], USER2);
+        assertEq(bpsResValues2[0], 100);
+        assertEq(bpsResValues2[1], 200);
+
         // Reset to new
         address payable[] memory receivers2 = new address payable[](1);
         receivers2[0] = payable(USER);
@@ -254,6 +276,17 @@ contract ERC721TokenTest is Test {
         assertEq(receiversRes[1], USER2);
         assertEq(bpsRes[0], 100);
         assertEq(bpsRes[1], 200);
+
+        (
+            address payable[] memory receiversResValues,
+            uint256[] memory bpsResValues
+        ) = token.royaltyInfo(0, 10000);
+        assertEq(receiversResValues.length, 2);
+        assertEq(bpsResValues.length, 2);
+        assertEq(receiversResValues[0], USER);
+        assertEq(receiversResValues[1], USER2);
+        assertEq(bpsResValues[0], 100);
+        assertEq(bpsResValues[1], 200);
 
         // Reset to new
         address payable[] memory receivers2 = new address payable[](1);
