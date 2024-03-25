@@ -16,7 +16,7 @@ contract TokenFactory is Ownable {
 
     mapping(address => address[]) ownerToTokens;
 
-    event TokenCreated(address token, bool isERC721);
+    event TokenCreated(address indexed token, bool indexed isERC721);
 
     constructor() Ownable(msg.sender) {
         ERC721Token tokenERC721 = new ERC721Token();
@@ -38,14 +38,15 @@ contract TokenFactory is Ownable {
         string memory name_,
         string memory symbol_,
         string memory baseTokenURI_,
-        bool hasRoyalty_
+        bool hasRoyalty_,
+        address initialOwner_
     ) external returns (address tokenAddress) {
         bytes memory beaconData = abi.encodeWithSelector(
             IToken.initialize.selector,
             name_,
             symbol_,
             baseTokenURI_,
-            msg.sender,
+            initialOwner_,
             hasRoyalty_
         );
 
@@ -61,7 +62,7 @@ contract TokenFactory is Ownable {
             emit TokenCreated(tokenAddress, false);
         }
 
-        ownerToTokens[msg.sender].push(tokenAddress);
+        ownerToTokens[initialOwner_].push(tokenAddress);
     }
 
     function getTokens() external view returns (address[] memory) {

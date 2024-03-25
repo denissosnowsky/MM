@@ -20,6 +20,10 @@ ifeq ($(findstring --network sepolia,$(ARGS)),--network sepolia)
 	NETWORK_ARGS := --rpc-url $(SEPOLIA_RPC_URL) --private-key $(SEPOLIA_PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(SEPOLIA_ETHERSCAN_API_KEY) -vvvv
 endif
 
+ifeq ($(findstring --network sepoliaOptimizm,$(ARGS)),--network sepoliaOptimizm)
+	NETWORK_ARGS := --rpc-url $(OPTIMIZM_RPC_URL) --private-key $(OPTIMIZM_PRIVATE_KEY) --broadcast -vvvv
+endif
+
 
 deploy:
 	@forge script script/DeployFactory.s.sol:DeployFactory $(NETWORK_ARGS)

@@ -10,7 +10,7 @@ import {ERC1155Token} from "../../src/tokens/ERC1155Token.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TokenFactoryTest is Test {
-    event TokenCreated(address token, bool isERC721);
+    event TokenCreated(address indexed token, bool indexed isERC721);
 
     using Strings for uint256;
 
@@ -31,35 +31,34 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, true, false, false);
         emit TokenCreated(address(0), true);
         ERC721Token token = ERC721Token(
-            factory.createToken(true, "name", "symbol", "URI", true)
+            factory.createToken(true, "name", "symbol", "URI", true, USER2)
         );
         vm.stopPrank();
 
-        assertEq(token.owner(), USER);
+        assertEq(token.owner(), USER2);
         assertEq(token.name(), "name");
         assertEq(token.symbol(), "symbol");
 
         uint256 id = 0;
 
-        vm.prank(USER);
+        vm.prank(USER2);
         token.mint();
 
         assertEq(token.tokenURI(id), string.concat("URI", id.toString()));
 
-        assertEq(factory.getTokens(USER)[0], address(token));
-        assertEq(factory.getTokens(USER).length, 1);
-        vm.startPrank(USER);
+        assertEq(factory.getTokens(USER2)[0], address(token));
+        assertEq(factory.getTokens(USER2).length, 1);
+        vm.startPrank(USER2);
         assertEq(factory.getTokens()[0], address(token));
 
         ERC721Token newToken = ERC721Token(
-            factory.createToken(true, "name", "symbol", "URI", true)
+            factory.createToken(true, "name", "symbol", "URI", true, USER)
         );
 
-        assertEq(factory.getTokens(USER)[0], address(token));
-        assertEq(factory.getTokens(USER)[1], address(newToken));
-        assertEq(factory.getTokens(USER).length, 2);
+        assertEq(factory.getTokens(USER)[0], address(newToken));
+        assertEq(factory.getTokens(USER).length, 1);
         vm.startPrank(USER);
-        assertEq(factory.getTokens()[1], address(newToken));
+        assertEq(factory.getTokens()[0], address(newToken));
     }
 
     function testShouldERC721TokenOwnableIsCorrect() public {
@@ -67,7 +66,7 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, true, false, false);
         emit TokenCreated(address(0), true);
         ERC721Token token = ERC721Token(
-            factory.createToken(true, "name", "symbol", "URI", true)
+            factory.createToken(true, "name", "symbol", "URI", true, USER)
         );
         vm.stopPrank();
 
@@ -103,7 +102,7 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, true, false, false);
         emit TokenCreated(address(0), true);
         ERC1155Token token = ERC1155Token(
-            factory.createToken(true, "name", "symbol", "URI", true)
+            factory.createToken(true, "name", "symbol", "URI", true, USER)
         );
         vm.stopPrank();
 
@@ -124,7 +123,7 @@ contract TokenFactoryTest is Test {
         assertEq(factory.getTokens()[0], address(token));
 
         ERC1155Token newToken = ERC1155Token(
-            factory.createToken(true, "name", "symbol", "URI", true)
+            factory.createToken(true, "name", "symbol", "URI", true, USER)
         );
 
         assertEq(factory.getTokens(USER)[0], address(token));
@@ -139,7 +138,7 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, false, false, false);
         emit TokenCreated(address(0), true);
         ERC1155Token token = ERC1155Token(
-            factory.createToken(false, "name", "symbol", "URI", true)
+            factory.createToken(false, "name", "symbol", "URI", true, USER)
         );
         vm.stopPrank();
 
@@ -176,8 +175,8 @@ contract TokenFactoryTest is Test {
 
     function testExternalUserCantUpgradeTokensImplementations() public {
         vm.startPrank(USER);
-        ERC1155Token(factory.createToken(false, "name", "symbol", "URI", true));
-        ERC721Token(factory.createToken(false, "name", "symbol", "URI", true));
+        ERC1155Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
+        ERC721Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
         vm.stopPrank();
 
         vm.startPrank(USER2);
@@ -202,8 +201,8 @@ contract TokenFactoryTest is Test {
 
     function testFactoryOwnerCanUprgradeTokensImplementations() public {
         vm.startPrank(USER);
-        ERC1155Token(factory.createToken(false, "name", "symbol", "URI", true));
-        ERC721Token(factory.createToken(false, "name", "symbol", "URI", true));
+        ERC1155Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
+        ERC721Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
         vm.stopPrank();
 
         address newToken721 = address(new ERC721Token());
