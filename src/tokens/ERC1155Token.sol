@@ -41,7 +41,9 @@ contract ERC1155Token is Ownable, ERC1155Supply, Royalty, IToken {
         string memory symbol_,
         string memory baseTokenURI_,
         address initialOwner_,
-        bool hasRoyalty_
+        bool hasRoyalty_,
+        address payable[] calldata _receivers,
+        uint256[] calldata _basisPoints
     ) external {
         if (_initialized) {
             revert ERC1155Token__AlreadyInitialized();
@@ -54,6 +56,10 @@ contract ERC1155Token is Ownable, ERC1155Supply, Royalty, IToken {
         _isCommonRoyalty = true;
         _setURI(baseTokenURI_);
         _transferOwnership(initialOwner_);
+
+        if (_receivers.length > 0) {
+            _setRoyalties(_receivers, _basisPoints);
+        }
     }
 
     function setInitialized() public {

@@ -41,7 +41,9 @@ contract TokenFactory is Ownable {
         string memory symbol_,
         string memory baseTokenURI_,
         bool hasRoyalty_,
-        address initialOwner_
+        address initialOwner_,
+        address payable[] calldata receivers_,
+        uint256[] calldata basisPoints_
     ) external returns (address tokenAddress) {
         if (initialOwner_ == address(0)) {
             revert TokenFactory__NotCorrectAddress();
@@ -53,7 +55,9 @@ contract TokenFactory is Ownable {
             symbol_,
             baseTokenURI_,
             initialOwner_,
-            hasRoyalty_
+            hasRoyalty_,
+            receivers_,
+            basisPoints_
         );
 
         if (isERC721) {

@@ -8,6 +8,8 @@ interface IToken {
         string memory symbol_,
         string memory baseTokenURI_,
         address initialOwner_,
-        bool hasRoyalty_
+        bool hasRoyalty_,
+        address payable[] calldata _receivers,
+        uint256[] calldata _basisPoints
     ) external;
 }

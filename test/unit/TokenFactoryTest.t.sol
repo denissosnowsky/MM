@@ -31,7 +31,16 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, true, false, false);
         emit TokenCreated(address(0), true);
         ERC721Token token = ERC721Token(
-            factory.createToken(true, "name", "symbol", "URI", true, USER2)
+            factory.createToken(
+                true,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER2,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         vm.stopPrank();
 
@@ -52,7 +61,16 @@ contract TokenFactoryTest is Test {
         assertEq(factory.getTokens()[0], address(token));
 
         ERC721Token newToken = ERC721Token(
-            factory.createToken(true, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                true,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
 
         assertEq(factory.getTokens(USER)[0], address(newToken));
@@ -66,7 +84,16 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, true, false, false);
         emit TokenCreated(address(0), true);
         ERC721Token token = ERC721Token(
-            factory.createToken(true, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                true,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         vm.stopPrank();
 
@@ -77,7 +104,15 @@ contract TokenFactoryTest is Test {
 
         vm.startPrank(USER2);
         vm.expectRevert(ERC721Token.ERC721Token__AlreadyInitialized.selector);
-        token.initialize("", "", "", address(0), true);
+        token.initialize(
+            "",
+            "",
+            "",
+            address(0),
+            true,
+            new address payable[](0),
+            new uint[](0)
+        );
         vm.expectRevert(revertError);
         token.mint();
         vm.expectRevert(revertError);
@@ -102,7 +137,16 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, true, false, false);
         emit TokenCreated(address(0), true);
         ERC1155Token token = ERC1155Token(
-            factory.createToken(true, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                true,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         vm.stopPrank();
 
@@ -123,7 +167,16 @@ contract TokenFactoryTest is Test {
         assertEq(factory.getTokens()[0], address(token));
 
         ERC1155Token newToken = ERC1155Token(
-            factory.createToken(true, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                true,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
 
         assertEq(factory.getTokens(USER)[0], address(token));
@@ -138,7 +191,16 @@ contract TokenFactoryTest is Test {
         vm.expectEmit(false, false, false, false);
         emit TokenCreated(address(0), true);
         ERC1155Token token = ERC1155Token(
-            factory.createToken(false, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                false,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         vm.stopPrank();
 
@@ -149,7 +211,15 @@ contract TokenFactoryTest is Test {
 
         vm.startPrank(USER2);
         vm.expectRevert(ERC1155Token.ERC1155Token__AlreadyInitialized.selector);
-        token.initialize("", "", "", address(0), true);
+        token.initialize(
+            "",
+            "",
+            "",
+            address(0),
+            true,
+            new address payable[](0),
+            new uint[](0)
+        );
         vm.expectRevert(revertError);
         token.mint();
         vm.expectRevert(revertError);
@@ -176,10 +246,28 @@ contract TokenFactoryTest is Test {
     function testExternalUserCantUpgradeTokensImplementations() public {
         vm.startPrank(USER);
         ERC1155Token(
-            factory.createToken(false, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                false,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         ERC721Token(
-            factory.createToken(false, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                false,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         vm.stopPrank();
 
@@ -206,10 +294,28 @@ contract TokenFactoryTest is Test {
     function testFactoryOwnerCanUprgradeTokensImplementations() public {
         vm.startPrank(USER);
         ERC1155Token(
-            factory.createToken(false, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                false,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         ERC721Token(
-            factory.createToken(false, "name", "symbol", "URI", true, USER)
+            factory.createToken(
+                false,
+                "name",
+                "symbol",
+                "URI",
+                true,
+                USER,
+                new address payable[](0),
+                new uint[](0)
+            )
         );
         vm.stopPrank();
 
@@ -222,6 +328,15 @@ contract TokenFactoryTest is Test {
 
     function testCannotSetZeroAddress() public {
         vm.expectRevert(TokenFactory.TokenFactory__NotCorrectAddress.selector);
-        factory.createToken(false, "name", "symbol", "URI", true, address(0));
+        factory.createToken(
+            false,
+            "name",
+            "symbol",
+            "URI",
+            true,
+            address(0),
+            new address payable[](0),
+            new uint[](0)
+        );
     }
 }

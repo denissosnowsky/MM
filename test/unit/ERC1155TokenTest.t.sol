@@ -19,7 +19,15 @@ contract ERC1155TokenTest is Test {
 
     function setUp() external {
         token = new ERC1155Token();
-        token.initialize("name", "symbol", "baseUri", USER, true);
+        token.initialize(
+            "name",
+            "symbol",
+            "baseUri",
+            USER,
+            true,
+            new address payable[](0),
+            new uint[](0)
+        );
         vm.deal(USER, STARTING_USER_BALANCE);
         vm.deal(USER2, STARTING_USER_BALANCE);
     }
@@ -48,7 +56,15 @@ contract ERC1155TokenTest is Test {
     function testIsInitialized() public {
         vm.prank(USER);
         vm.expectRevert(ERC1155Token.ERC1155Token__AlreadyInitialized.selector);
-        token.initialize("", "", "", address(0), true);
+        token.initialize(
+            "",
+            "",
+            "",
+            address(0),
+            true,
+            new address payable[](0),
+            new uint[](0)
+        );
     }
 
     function testNotOwnerCannotCallWriteFunctions() public {
@@ -62,7 +78,15 @@ contract ERC1155TokenTest is Test {
 
         vm.startPrank(USER2);
         vm.expectRevert(ERC1155Token.ERC1155Token__AlreadyInitialized.selector);
-        token.initialize("", "", "", address(0), true);
+        token.initialize(
+            "",
+            "",
+            "",
+            address(0),
+            true,
+            new address payable[](0),
+            new uint[](0)
+        );
         vm.expectRevert(revertError);
         token.mint();
         vm.expectRevert(revertError);
@@ -469,5 +493,39 @@ contract ERC1155TokenTest is Test {
         token.setRoyalties(receivers, bps);
 
         vm.stopPrank();
+    }
+
+    function testCanInitializeWithRoyalties() public {
+        address payable[] memory receivers = new address payable[](2);
+        receivers[0] = payable(USER);
+        receivers[1] = payable(USER2);
+        uint256[] memory bps = new uint256[](2);
+        bps[0] = 100;
+        bps[1] = 200;
+
+        vm.startPrank(USER);
+
+        token = new ERC1155Token();
+        token.initialize(
+            "name",
+            "symbol",
+            "baseUri",
+            USER,
+            true,
+            receivers,
+            bps
+        );
+
+        vm.stopPrank();
+
+        (address payable[] memory receiversRes, uint256[] memory bpsRes) = token
+            .getRoyalties();
+
+        assertEq(receiversRes.length, 2);
+        assertEq(bpsRes.length, 2);
+        assertEq(receiversRes[0], USER);
+        assertEq(receiversRes[1], USER2);
+        assertEq(bpsRes[0], 100);
+        assertEq(bpsRes[1], 200);
     }
 }

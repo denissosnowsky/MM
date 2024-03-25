@@ -37,7 +37,9 @@ contract ERC721Token is Ownable, ERC721, IToken, Royalty {
         string memory symbol_,
         string memory baseTokenURI_,
         address initialOwner_,
-        bool hasRoyalty_
+        bool hasRoyalty_,
+        address payable[] calldata _receivers,
+        uint256[] calldata _basisPoints
     ) external {
         if (_initialized) {
             revert ERC721Token__AlreadyInitialized();
@@ -50,6 +52,10 @@ contract ERC721Token is Ownable, ERC721, IToken, Royalty {
         _hasRoyalty = hasRoyalty_;
         _isCommonRoyalty = true;
         _transferOwnership(initialOwner_);
+
+        if (_receivers.length > 0) {
+            _setRoyalties(_receivers, _basisPoints);
+        }
     }
 
     function setInitialized() public {
