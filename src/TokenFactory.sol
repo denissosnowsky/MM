@@ -11,6 +11,8 @@ import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol"
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TokenFactory is Ownable {
+    error TokenFactory__NotCorrectAddress();
+
     UpgradeableBeacon public _beaconERC721;
     UpgradeableBeacon public _beaconERC1155;
 
@@ -41,6 +43,10 @@ contract TokenFactory is Ownable {
         bool hasRoyalty_,
         address initialOwner_
     ) external returns (address tokenAddress) {
+        if (initialOwner_ == address(0)) {
+            revert TokenFactory__NotCorrectAddress();
+        }
+
         bytes memory beaconData = abi.encodeWithSelector(
             IToken.initialize.selector,
             name_,

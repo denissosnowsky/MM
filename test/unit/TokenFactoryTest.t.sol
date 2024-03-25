@@ -175,8 +175,12 @@ contract TokenFactoryTest is Test {
 
     function testExternalUserCantUpgradeTokensImplementations() public {
         vm.startPrank(USER);
-        ERC1155Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
-        ERC721Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
+        ERC1155Token(
+            factory.createToken(false, "name", "symbol", "URI", true, USER)
+        );
+        ERC721Token(
+            factory.createToken(false, "name", "symbol", "URI", true, USER)
+        );
         vm.stopPrank();
 
         vm.startPrank(USER2);
@@ -201,8 +205,12 @@ contract TokenFactoryTest is Test {
 
     function testFactoryOwnerCanUprgradeTokensImplementations() public {
         vm.startPrank(USER);
-        ERC1155Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
-        ERC721Token(factory.createToken(false, "name", "symbol", "URI", true, USER));
+        ERC1155Token(
+            factory.createToken(false, "name", "symbol", "URI", true, USER)
+        );
+        ERC721Token(
+            factory.createToken(false, "name", "symbol", "URI", true, USER)
+        );
         vm.stopPrank();
 
         address newToken721 = address(new ERC721Token());
@@ -210,5 +218,10 @@ contract TokenFactoryTest is Test {
 
         factory.upgradeBeaconERC721(newToken721);
         factory.upgradeBeaconERC1155(newToken1155);
+    }
+
+    function testCannotSetZeroAddress() public {
+        vm.expectRevert(TokenFactory.TokenFactory__NotCorrectAddress.selector);
+        factory.createToken(false, "name", "symbol", "URI", true, address(0));
     }
 }
