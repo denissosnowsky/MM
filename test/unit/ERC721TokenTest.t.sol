@@ -10,6 +10,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ERC721TokenTest is Test {
     using Strings for uint256;
+    using Strings for address;
 
     ERC721Token token;
 
@@ -46,7 +47,20 @@ contract ERC721TokenTest is Test {
         vm.prank(USER);
         token.mint();
 
-        assertEq(token.tokenURI(id), string.concat("baseUri", id.toString()));
+        assertEq(
+            token.tokenURI(id),
+            string.concat(
+                "baseUri",
+                "/",
+                block.chainid.toString(),
+                "/",
+                address(token).toHexString(),
+                "/",
+                id.toString()
+            )
+        );
+
+        console.log(token.tokenURI(id));
     }
 
     function testTokenHasCorrectOwner() public {
@@ -148,14 +162,33 @@ contract ERC721TokenTest is Test {
         vm.prank(USER);
         token.mint();
 
-        assertEq(token.tokenURI(id), string.concat("baseUri", id.toString()));
+        assertEq(
+            token.tokenURI(id),
+            string.concat(
+                "baseUri",
+                "/",
+                block.chainid.toString(),
+                "/",
+                address(token).toHexString(),
+                "/",
+                id.toString()
+            )
+        );
 
         vm.prank(USER);
         token.setBaseURI("newBaseUri");
 
         assertEq(
             token.tokenURI(id),
-            string.concat("newBaseUri", id.toString())
+            string.concat(
+                "newBaseUri",
+                "/",
+                block.chainid.toString(),
+                "/",
+                address(token).toHexString(),
+                "/",
+                id.toString()
+            )
         );
     }
 

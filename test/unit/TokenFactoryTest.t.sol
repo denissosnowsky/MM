@@ -13,6 +13,7 @@ contract TokenFactoryTest is Test {
     event TokenCreated(address indexed token, bool indexed isERC721);
 
     using Strings for uint256;
+    using Strings for address;
 
     TokenFactory factory;
 
@@ -53,7 +54,18 @@ contract TokenFactoryTest is Test {
         vm.prank(USER2);
         token.mint();
 
-        assertEq(token.tokenURI(id), string.concat("URI", id.toString()));
+        assertEq(
+            token.tokenURI(id),
+            string.concat(
+                "URI",
+                "/",
+                block.chainid.toString(),
+                "/",
+                address(token).toHexString(),
+                "/",
+                id.toString()
+            )
+        );
 
         assertEq(factory.getTokens(USER2)[0], address(token));
         assertEq(factory.getTokens(USER2).length, 1);
@@ -159,7 +171,18 @@ contract TokenFactoryTest is Test {
         vm.prank(USER);
         token.mint();
 
-        assertEq(token.tokenURI(id), string.concat("URI", id.toString()));
+        assertEq(
+            token.tokenURI(id),
+            string.concat(
+                "URI",
+                "/",
+                block.chainid.toString(),
+                "/",
+                address(token).toHexString(),
+                "/",
+                id.toString()
+            )
+        );
 
         assertEq(factory.getTokens(USER)[0], address(token));
         assertEq(factory.getTokens(USER).length, 1);

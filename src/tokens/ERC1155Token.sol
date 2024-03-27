@@ -17,6 +17,7 @@ contract ERC1155Token is Ownable, ERC1155Supply, Royalty, IToken {
     error ERC1155Token__AlreadyInitialized();
 
     using Strings for uint256;
+    using Strings for address;
 
     bool private _initialized;
     uint256 private _tokenCounter;
@@ -107,7 +108,15 @@ contract ERC1155Token is Ownable, ERC1155Supply, Royalty, IToken {
         string memory baseURI = uri(tokenId);
         return
             bytes(baseURI).length > 0
-                ? string.concat(baseURI, tokenId.toString())
+                ? string.concat(
+                    baseURI,
+                    "/",
+                    block.chainid.toString(),
+                    "/",
+                    address(this).toHexString(),
+                    "/",
+                    tokenId.toString()
+                )
                 : "";
     }
 

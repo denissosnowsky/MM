@@ -6,6 +6,7 @@ import {ERC721} from "../standarts/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Royalty} from "../extentions/Royalty.sol";
 import {IToken} from "./IToken.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ERC721Token is Ownable, ERC721, IToken, Royalty {
     error ERC721Token__TokenDoesNotExist();
@@ -14,6 +15,9 @@ contract ERC721Token is Ownable, ERC721, IToken, Royalty {
     error ERC721Token__CommonRoyaltyIsOff();
     error ERC721Token__AlreadyInitialized();
     error ERC721Token__NotTokenOwner();
+
+    using Strings for uint256;
+    using Strings for address;
 
     bool private _initialized;
     uint256 private _tokenCounter;
@@ -180,6 +184,24 @@ contract ERC721Token is Ownable, ERC721, IToken, Royalty {
         uint256 value
     ) public view returns (address payable[] memory, uint256[] memory) {
         return _getRoyaltyInfo(value);
+    }
+
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        string memory baseURI = _baseURI();
+        return
+            bytes(baseURI).length > 0
+                ? string.concat(
+                    baseURI,
+                    "/",
+                    block.chainid.toString(),
+                    "/",
+                    address(this).toHexString(),
+                    "/",
+                    tokenId.toString()
+                )
+                : "";
     }
 
     function _baseURI() internal view override returns (string memory) {
