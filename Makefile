@@ -24,6 +24,10 @@ ifeq ($(findstring --network sepoliaOptimizm,$(ARGS)),--network sepoliaOptimizm)
 	NETWORK_ARGS := --rpc-url $(OPTIMIZM_RPC_URL) --private-key $(OPTIMIZM_PRIVATE_KEY) --broadcast -vvvv
 endif
 
+ifeq ($(findstring --network optimism,$(ARGS)),--network optimism)
+	NETWORK_ARGS := --rpc-url $(OPTIMISM_RPC_URL) --private-key $(OPTIMISM_PRIVATE_KEY) --with-gas-price $(OPTIMISM_GAS_PRICE) --broadcast --verify --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) -vvvv
+endif
+
 
 deploy:
 	@forge script script/DeployFactory.s.sol:DeployFactory $(NETWORK_ARGS)
